@@ -1,0 +1,69 @@
+# ==========================================
+# FlowForge AI — Root .gitignore
+# ==========================================
+
+# ── Environment & Secrets (CRITICAL) ────
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+*.pem
+
+# ── Databases & Local State ──────────────
+*.db
+*.sqlite
+*.sqlite3
+backend/flowforge.db
+
+# ── Node / Next.js ──────────────────────
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+frontend/out/
+frontend/build/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Python ──────────────────────────────
+__pycache__/
+backend/__pycache__/
+backend/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Temporary / Scratch Folders ──────────
+scratch/
+stitch_screens/
+stitch_premium/
+
+# ── Operating System & IDE ──────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.idea/
+*.sublime-project
+*.sublime-workspace

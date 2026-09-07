@@ -1,0 +1,22 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+aiosqlite
+pydantic
+pydantic-settings
+sse-starlette
+python-dotenv
+
+# AI Providers (direct)
+openai
+google-generativeai
+google-genai
+
+# LangChain + LangGraph (multi-agent orchestration)
+langgraph
+langchain-core
+langchain-google-genai
+langchain-openai
+
+# Web Search Engine
+ddgs
