@@ -56,7 +56,7 @@ export default function HistoryPage() {
       headers["X-User-Id"] = currentUid;
     }
 
-    fetch("/api/workflows", { headers })
+    fetch("/api/workflows", { headers, cache: "no-store" })
       .then((r) => {
         if (!r.ok) throw new Error("Proxy error");
         return r.json();
@@ -66,7 +66,7 @@ export default function HistoryPage() {
         setLoading(false);
       })
       .catch(() => {
-        fetch(`${API_BASE_URL}/api/workflows`, { headers })
+        fetch(`${API_BASE_URL}/api/workflows`, { headers, cache: "no-store" })
           .then((r) => r.json())
           .then((data) => {
             setWorkflows(data);

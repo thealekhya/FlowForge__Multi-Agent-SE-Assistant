@@ -100,20 +100,25 @@ async def create_workflow(
 
 @router.get("", response_model=list[WorkflowListItem])
 async def list_workflows(
+    response: Response,
     skip: int = 0,
     limit: int = 50,
     session: AsyncSession = Depends(get_session),
     user_id: str | None = Depends(get_current_user_id),
 ):
     """List all workflows with pagination, newest first. Strictly isolated by user ID."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+
     stmt = (
         select(Workflow)
         .order_by(Workflow.created_at.desc())
     )
     if user_id:
-        stmt = stmt.where(Workflow.user_id == user_id)
+        # Show workflows owned by this user AND unassigned/guest workflows so work is never lost across login boundaries
+        stmt = stmt.where((Workflow.user_id == user_id) | (Workflow.user_id.is_(None)))
     else:
-        # If no user ID provided, only show legacy/public unassigned workflows
+        # If no user ID provided, show unassigned/guest workflows
         stmt = stmt.where(Workflow.user_id.is_(None))
 
     stmt = stmt.offset(skip).limit(limit)

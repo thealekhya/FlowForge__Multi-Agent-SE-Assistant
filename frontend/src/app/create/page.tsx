@@ -82,7 +82,7 @@ function CreatePageInner() {
       headers["X-User-Id"] = userId;
     }
 
-    fetch("/api/workflows?limit=4", { headers })
+    fetch("/api/workflows?limit=4", { headers, cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch recent workflows");
         return res.json();
@@ -92,7 +92,7 @@ function CreatePageInner() {
         setLoadingRecent(false);
       })
       .catch(() => {
-        fetch(`${API_BASE_URL}/api/workflows?limit=4`, { headers })
+        fetch(`${API_BASE_URL}/api/workflows?limit=4`, { headers, cache: "no-store" })
           .then((r) => r.json())
           .then((data) => {
             setRecentWorkflows(data.slice(0, 4));

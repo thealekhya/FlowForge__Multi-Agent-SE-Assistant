@@ -64,6 +64,7 @@ stitch_premium/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+~$*
 .idea/
 *.sublime-project
 *.sublime-workspace
