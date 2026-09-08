@@ -27,6 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8010";
+
 interface WebSource {
   title: string;
   url: string;
@@ -84,7 +86,7 @@ export default function ResearchPage() {
       }).catch(() => null);
 
       if (!res || !res.ok) {
-        res = await fetch("http://localhost:8010/api/research", {
+        res = await fetch(`${API_BASE_URL}/api/research`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query: q, max_results: 5 }),
