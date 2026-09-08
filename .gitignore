@@ -58,6 +58,9 @@ htmlcov/
 scratch/
 stitch_screens/
 stitch_premium/
+*DESIGN_DOCUMENT*
+*Design_Document*
+*.docx
 
 # ── Operating System & IDE ──────────────
 .DS_Store
