@@ -20,3 +20,7 @@ langchain-openai
 
 # Web Search Engine
 ddgs
+
+# Export Generation (PDF & Word DOCX)
+reportlab
+python-docx
