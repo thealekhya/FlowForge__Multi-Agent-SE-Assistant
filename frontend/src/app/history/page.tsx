@@ -61,18 +61,47 @@ export default function HistoryPage() {
         if (!r.ok) throw new Error("Proxy error");
         return r.json();
       })
-      .then((data) => {
-        setWorkflows(data);
-        setLoading(false);
+      .then(async (data) => {
+        if (data && data.length > 0) {
+          setWorkflows(data);
+          setLoading(false);
+        } else if (currentUid) {
+          // Fallback: If user has no personal runs yet, load shared/unassigned runs
+          try {
+            const fallbackRes = await fetch("/api/workflows", { cache: "no-store" });
+            if (fallbackRes.ok) {
+              const fbData = await fallbackRes.json();
+              setWorkflows(fbData);
+            } else {
+              setWorkflows([]);
+            }
+          } catch {
+            setWorkflows([]);
+          }
+          setLoading(false);
+        } else {
+          setWorkflows([]);
+          setLoading(false);
+        }
       })
-      .catch(() => {
-        fetch(`${API_BASE_URL}/api/workflows`, { headers, cache: "no-store" })
-          .then((r) => r.json())
-          .then((data) => {
+      .catch(async () => {
+        try {
+          const r = await fetch(`${API_BASE_URL}/api/workflows`, { headers, cache: "no-store" });
+          const data = await r.json();
+          if (data && data.length > 0) {
             setWorkflows(data);
-            setLoading(false);
-          })
-          .catch(() => setLoading(false));
+          } else if (currentUid) {
+            const fb = await fetch(`${API_BASE_URL}/api/workflows`, { cache: "no-store" });
+            const fbData = await fb.json();
+            setWorkflows(fbData);
+          } else {
+            setWorkflows([]);
+          }
+        } catch {
+          setWorkflows([]);
+        } finally {
+          setLoading(false);
+        }
       });
   };
 
