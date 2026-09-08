@@ -3,9 +3,6 @@ import type { NextConfig } from "next";
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8010';
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
