@@ -61,6 +61,7 @@ stitch_premium/
 *DESIGN_DOCUMENT*
 *Design_Document*
 *.docx
+diagrams/
 
 # ── Operating System & IDE ──────────────
 .DS_Store
