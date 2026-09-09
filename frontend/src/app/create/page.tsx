@@ -58,7 +58,7 @@ const TEMPLATES = [
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8010";
 
 function CreatePageInner() {
-  const { userId } = useAuth();
+  const { userId, isLoaded } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [prompt, setPrompt] = useState("");
@@ -75,8 +75,11 @@ function CreatePageInner() {
     }
   }, [searchParams]);
 
-  // Fetch recent workflows for sidebar (isolated by user, with fallback to shared workflows)
+  // Fetch recent workflows for sidebar (strictly isolated by user account)
   useEffect(() => {
+    if (!isLoaded) return;
+
+    setLoadingRecent(true);
     const headers: Record<string, string> = {};
     if (userId) {
       headers["X-User-Id"] = userId;
@@ -87,49 +90,23 @@ function CreatePageInner() {
         if (!res.ok) throw new Error("Failed to fetch recent workflows");
         return res.json();
       })
-      .then(async (data) => {
-        if (data && data.length > 0) {
-          setRecentWorkflows(data.slice(0, 4));
-          setLoadingRecent(false);
-        } else if (userId) {
-          // Fallback: If user has no personal runs yet, display unassigned/shared runs
-          try {
-            const fallbackRes = await fetch("/api/workflows?limit=4", { cache: "no-store" });
-            if (fallbackRes.ok) {
-              const fallbackData = await fallbackRes.json();
-              setRecentWorkflows(fallbackData.slice(0, 4));
-            } else {
-              setRecentWorkflows([]);
-            }
-          } catch {
-            setRecentWorkflows([]);
-          }
-          setLoadingRecent(false);
-        } else {
-          setRecentWorkflows([]);
-          setLoadingRecent(false);
-        }
+      .then((data) => {
+        setRecentWorkflows(Array.isArray(data) ? data.slice(0, 4) : []);
+        setLoadingRecent(false);
       })
-      .catch(async () => {
-        try {
-          const r = await fetch(`${API_BASE_URL}/api/workflows?limit=4`, { headers, cache: "no-store" });
-          const data = await r.json();
-          if (data && data.length > 0) {
-            setRecentWorkflows(data.slice(0, 4));
-          } else if (userId) {
-            const fb = await fetch(`${API_BASE_URL}/api/workflows?limit=4`, { cache: "no-store" });
-            const fbData = await fb.json();
-            setRecentWorkflows(fbData.slice(0, 4));
-          } else {
+      .catch(() => {
+        fetch(`${API_BASE_URL}/api/workflows?limit=4`, { headers, cache: "no-store" })
+          .then((r) => r.json())
+          .then((data) => {
+            setRecentWorkflows(Array.isArray(data) ? data.slice(0, 4) : []);
+            setLoadingRecent(false);
+          })
+          .catch(() => {
             setRecentWorkflows([]);
-          }
-        } catch {
-          setRecentWorkflows([]);
-        } finally {
-          setLoadingRecent(false);
-        }
+            setLoadingRecent(false);
+          });
       });
-  }, [userId]);
+  }, [userId, isLoaded]);
 
   const handleSubmit = async () => {
     if (!prompt.trim() || prompt.trim().length < 10) {

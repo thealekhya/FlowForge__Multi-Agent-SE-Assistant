@@ -115,10 +115,10 @@ async def list_workflows(
         .order_by(Workflow.created_at.desc())
     )
     if user_id:
-        # Show workflows owned by this user AND unassigned/guest workflows so work is never lost across login boundaries
-        stmt = stmt.where((Workflow.user_id == user_id) | (Workflow.user_id.is_(None)))
+        # Strictly isolated: only show workflows belonging to this authenticated user
+        stmt = stmt.where(Workflow.user_id == user_id)
     else:
-        # If no user ID provided, show unassigned/guest workflows
+        # If no user ID provided (guest / unauthenticated), show public/unassigned workflows
         stmt = stmt.where(Workflow.user_id.is_(None))
 
     stmt = stmt.offset(skip).limit(limit)

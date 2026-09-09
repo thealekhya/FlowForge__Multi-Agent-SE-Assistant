@@ -40,7 +40,7 @@ interface WorkflowItem {
 }
 
 export default function HistoryPage() {
-  const { userId } = useAuth();
+  const { userId, isLoaded } = useAuth();
   const [workflows, setWorkflows] = useState<WorkflowItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,57 +61,32 @@ export default function HistoryPage() {
         if (!r.ok) throw new Error("Proxy error");
         return r.json();
       })
-      .then(async (data) => {
-        if (data && data.length > 0) {
-          setWorkflows(data);
-          setLoading(false);
-        } else if (currentUid) {
-          // Fallback: If user has no personal runs yet, load shared/unassigned runs
-          try {
-            const fallbackRes = await fetch("/api/workflows", { cache: "no-store" });
-            if (fallbackRes.ok) {
-              const fbData = await fallbackRes.json();
-              setWorkflows(fbData);
-            } else {
-              setWorkflows([]);
-            }
-          } catch {
-            setWorkflows([]);
-          }
-          setLoading(false);
-        } else {
-          setWorkflows([]);
-          setLoading(false);
-        }
+      .then((data) => {
+        setWorkflows(Array.isArray(data) ? data : []);
+        setLoading(false);
       })
-      .catch(async () => {
-        try {
-          const r = await fetch(`${API_BASE_URL}/api/workflows`, { headers, cache: "no-store" });
-          const data = await r.json();
-          if (data && data.length > 0) {
-            setWorkflows(data);
-          } else if (currentUid) {
-            const fb = await fetch(`${API_BASE_URL}/api/workflows`, { cache: "no-store" });
-            const fbData = await fb.json();
-            setWorkflows(fbData);
-          } else {
+      .catch(() => {
+        fetch(`${API_BASE_URL}/api/workflows`, { headers, cache: "no-store" })
+          .then((r) => r.json())
+          .then((data) => {
+            setWorkflows(Array.isArray(data) ? data : []);
+            setLoading(false);
+          })
+          .catch(() => {
             setWorkflows([]);
-          }
-        } catch {
-          setWorkflows([]);
-        } finally {
-          setLoading(false);
-        }
+            setLoading(false);
+          });
       });
   };
 
   useEffect(() => {
+    if (!isLoaded) return;
     loadWorkflows(userId);
 
     const handleDocumentClick = () => setExportMenuWfId(null);
     document.addEventListener("click", handleDocumentClick);
     return () => document.removeEventListener("click", handleDocumentClick);
-  }, [userId]);
+  }, [userId, isLoaded]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
